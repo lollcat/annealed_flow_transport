@@ -36,7 +36,7 @@ def get_config():
   config.stopping_criterion = 'time'
   config.use_resampling = True
   config.use_markov = True
-  config.algo = 'aft'
+  config.algo = 'craft'
   config.vi_iters = 1000
   config.vi_estimator = 'importance'
 
@@ -64,8 +64,8 @@ def get_config():
   flow_config.intermediate_hids_per_dim = 30
   flow_config.num_layers = 3
   flow_config.identity_init = True
-  flow_config.lower_lim = -4.
-  flow_config.upper_lim = 4.
+  flow_config.lower_lim = - 80.0  # -4.
+  flow_config.upper_lim = 80.  # 4.
   flow_config.min_bin_size = 1e-4
   flow_config.min_derivative = 1e-4
   flow_config.bias_last = True
@@ -73,6 +73,11 @@ def get_config():
   config.flow_config = flow_config
 
   mcmc_config = ConfigDict()
+  mcmc_config.rwm_steps_per_iter = 3
+  rw_step_config = ConfigDict()
+  rw_step_config.step_sizes = [0., 0.25, 0.5, 1.]
+  rw_step_config.step_times = [2.0, 2.0, 2.0, 2.0]
+  mcmc_config.rwm_step_config = rw_step_config
 
   hmc_step_config = ConfigDict()
   hmc_step_config.step_times = [0., 0.25, 0.5, 1.]
@@ -93,5 +98,10 @@ def get_config():
   initial_sampler_config = ConfigDict()
   initial_sampler_config.initial_sampler = 'MultivariateNormalDistribution'
   config.initial_sampler_config = initial_sampler_config
+
+
+  config.craft_num_iters = 1000
+  config.craft_batch_size = 2000
+  optimization_config.craft_step_size = 1e-2
 
   return config

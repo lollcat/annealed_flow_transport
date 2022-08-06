@@ -325,4 +325,11 @@ def outer_loop_craft(opt_update: UpdateFn,
       log_normalizer_estimate=log_normalizer_estimate,
       delta_time=delta_time,
       initial_time_diff=initial_time_diff)
+
+  import matplotlib.pyplot as plt
+  from utils_fab import plot_contours_2D
+  fig, ax = plt.subplots()
+  plot_contours_2D(final_log_density, ax=ax, bound=60, levels=40)
+  ax.plot(final_samples[:, 0], final_samples[:, 1], "o")
+  plt.show()
   return results

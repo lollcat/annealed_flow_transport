@@ -30,6 +30,7 @@ from jax.scipy.stats import multivariate_normal
 from jax.scipy.stats import norm
 import numpy as np
 import tensorflow_datasets as tfds
+import distrax
 
 # TypeDefs
 NpArray = np.ndarray
@@ -291,29 +292,38 @@ class ChallengingTwoDimensionalMixture(LogDensity):
   num_dim should be 2. config is unused in this case.
   """
 
+  def __init__(self, *args, **kwargs):
+    super(ChallengingTwoDimensionalMixture, self).__init__(*args, **kwargs)
+    dim = 2
+    n_mixes = 40
+    loc_scaling = 40
+    log_var_scaling = 1.0
+    seed = 0
+    self.seed = seed
+    self.n_mixes = n_mixes
+    self.dim = dim
+    key = jax.random.PRNGKey(seed)
+    logits = jnp.ones(n_mixes)
+    mean = jax.random.uniform(shape=(n_mixes, dim), key=key, minval=-1.0, maxval=1.0) * loc_scaling
+    log_var = jnp.ones(shape=(n_mixes, dim)) * log_var_scaling
+
+    mixture_dist = distrax.Categorical(logits=logits)
+    var = jax.nn.softplus(log_var)
+    components_dist = distrax.Independent(
+      distrax.Normal(loc=mean, scale=var), reinterpreted_batch_ndims=1
+    )
+    self.distribution = distrax.MixtureSameFamily(
+      mixture_distribution=mixture_dist,
+      components_distribution=components_dist,
+    )
+
+
   def _check_constructor_inputs(self, unused_config: ConfigDict, num_dim: int):
     self._check_expected_num_dim(num_dim, 2, type(self).__name__)
 
   def raw_log_density(self, x: Array) -> Array:
     """A raw log density that we will then symmetrize."""
-    mean_a = jnp.array([3.0, 0.])
-    mean_b = jnp.array([-2.5, 0.])
-    mean_c = jnp.array([2.0, 3.0])
-    means = jnp.stack((mean_a, mean_b, mean_c), axis=0)
-    cov_a = jnp.array([[0.7, 0.], [0., 0.05]])
-    cov_b = jnp.array([[0.7, 0.], [0., 0.05]])
-    cov_c = jnp.array([[1.0, 0.95], [0.95, 1.0]])
-    covs = jnp.stack((cov_a, cov_b, cov_c), axis=0)
-    log_weights = jnp.log(jnp.array([1./3, 1./3., 1./3.]))
-    l = jnp.linalg.cholesky(covs)
-    y = slinalg.solve_triangular(l, x[None, :] - means, lower=True, trans=0)
-    mahalanobis_term = -1/2 * jnp.einsum("...i,...i->...", y, y)
-    n = means.shape[-1]
-    normalizing_term = -n / 2 * np.log(2 * np.pi) - jnp.log(
-        l.diagonal(axis1=-2, axis2=-1)).sum(axis=1)
-    individual_log_pdfs = mahalanobis_term + normalizing_term
-    mixture_weighted_pdfs = individual_log_pdfs + log_weights
-    return logsumexp(mixture_weighted_pdfs)
+    return self.distribution.log_prob(x)
 
   def make_2d_invariant(self, log_density, x: Array) -> Array:
     density_a = log_density(x)
@@ -323,6 +333,45 @@ class ChallengingTwoDimensionalMixture(LogDensity):
   def evaluate_log_density(self, x: Array) -> Array:
     density_func = lambda x: self.make_2d_invariant(self.raw_log_density, x)
     return jax.vmap(density_func)(x)
+
+# class ChallengingTwoDimensionalMixture(LogDensity):
+#   """A challenging mixture of Gaussians in two dimensions.
+#
+#   num_dim should be 2. config is unused in this case.
+#   """
+#
+#   def _check_constructor_inputs(self, unused_config: ConfigDict, num_dim: int):
+#     self._check_expected_num_dim(num_dim, 2, type(self).__name__)
+#
+#   def raw_log_density(self, x: Array) -> Array:
+#     """A raw log density that we will then symmetrize."""
+#     mean_a = jnp.array([3.0, 0.])
+#     mean_b = jnp.array([-2.5, 0.])
+#     mean_c = jnp.array([2.0, 3.0])
+#     means = jnp.stack((mean_a, mean_b, mean_c), axis=0)
+#     cov_a = jnp.array([[0.7, 0.], [0., 0.05]])
+#     cov_b = jnp.array([[0.7, 0.], [0., 0.05]])
+#     cov_c = jnp.array([[1.0, 0.95], [0.95, 1.0]])
+#     covs = jnp.stack((cov_a, cov_b, cov_c), axis=0)
+#     log_weights = jnp.log(jnp.array([1./3, 1./3., 1./3.]))
+#     l = jnp.linalg.cholesky(covs)
+#     y = slinalg.solve_triangular(l, x[None, :] - means, lower=True, trans=0)
+#     mahalanobis_term = -1/2 * jnp.einsum("...i,...i->...", y, y)
+#     n = means.shape[-1]
+#     normalizing_term = -n / 2 * np.log(2 * np.pi) - jnp.log(
+#         l.diagonal(axis1=-2, axis2=-1)).sum(axis=1)
+#     individual_log_pdfs = mahalanobis_term + normalizing_term
+#     mixture_weighted_pdfs = individual_log_pdfs + log_weights
+#     return logsumexp(mixture_weighted_pdfs)
+#
+#   def make_2d_invariant(self, log_density, x: Array) -> Array:
+#     density_a = log_density(x)
+#     density_b = log_density(np.flip(x))
+#     return jnp.logaddexp(density_a, density_b) - jnp.log(2)
+#
+#   def evaluate_log_density(self, x: Array) -> Array:
+#     density_func = lambda x: self.make_2d_invariant(self.raw_log_density, x)
+#     return jax.vmap(density_func)(x)
 
 
 class AutoEncoderLikelihood(LogDensity):

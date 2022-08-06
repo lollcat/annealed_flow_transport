@@ -23,7 +23,7 @@ from ml_collections.config_flags import config_flags
 
 FLAGS = flags.FLAGS
 config_flags.DEFINE_config_file('config',
-                                './configs/single_normal.py',
+                                './configs/two_dimensional_challenging.py',
                                 'Training configuration.')
 
 
@@ -32,7 +32,9 @@ def main(argv: Sequence[str]) -> None:
   info = 'Displaying config '+str(config)
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
-  train.run_experiment(config)
+  results = train.run_experiment(config)
+
+
 
 if __name__ == '__main__':
   app.run(main)

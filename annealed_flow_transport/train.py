@@ -205,4 +205,10 @@ def run_experiment(config) -> AlgoResultsTuple:
 
   results = prepare_outer_loop(initial_sampler, log_density_initial,
                                log_density_final, flow_func, config)
+  import matplotlib.pyplot as plt
+  from utils_fab import plot_contours_2D
+  fig, ax = plt.subplots()
+  plot_contours_2D(log_density_final, ax=ax, bound=60, levels=40)
+  ax.plot(results.test_samples[:, 0], results.test_samples[:, 1], "o")
+  plt.show()
   return results
