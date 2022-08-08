@@ -54,7 +54,7 @@ def get_config():
   config.initial_config = initial_config
 
   final_config = ConfigDict()
-  final_config.density = 'ChallengingTwoDimensionalMixture'
+  final_config.density = 'FABMoG'
   config.final_config = final_config
 
   flow_config = ConfigDict()
@@ -64,8 +64,8 @@ def get_config():
   flow_config.intermediate_hids_per_dim = 30
   flow_config.num_layers = 3
   flow_config.identity_init = True
-  flow_config.lower_lim = -4.
-  flow_config.upper_lim = 4.
+  flow_config.lower_lim = - 60.  # -4.
+  flow_config.upper_lim = 60.  # 4.
   flow_config.min_bin_size = 1e-4
   flow_config.min_derivative = 1e-4
   flow_config.bias_last = True
@@ -73,20 +73,20 @@ def get_config():
   config.flow_config = flow_config
 
   mcmc_config = ConfigDict()
-  mcmc_config.rwm_steps_per_iter = 3
+  mcmc_config.rwm_steps_per_iter = 10
   rw_step_config = ConfigDict()
-  rw_step_config.step_sizes = [0.5, 0.5, 0.5, 0.3]
-  rw_step_config.step_times = [0., 0.25, 0.5, 1.]# really big to give good chance of discovering modes
+  rw_step_config.step_sizes = [1.0, 1.0, 1.0, 1.0]  # really big to give good chance of discovering modes
+  rw_step_config.step_times = [0., 0.25, 0.5, 1.]
   mcmc_config.rwm_step_config = rw_step_config
 
   hmc_step_config = ConfigDict()
-  hmc_step_config.step_times = [0., 0.25, 0.5, 1.]
-  hmc_step_config.step_sizes = [0.5, 0.5, 0.5, 0.3]
+  hmc_step_config.step_times = [0., 0.25, 0.5, 1.0]
+  hmc_step_config.step_sizes = [0.5, 0.5, 0.5, 0.5]
   mcmc_config.hmc_step_config = hmc_step_config
   nuts_step_config = ConfigDict()
   nuts_step_config.step_times = [0., 0.25, 0.5, 1.]
   nuts_step_config.step_sizes = [2.0, 2.0, 2.0, 2.0]
-  mcmc_config.hmc_steps_per_iter = 10
+  mcmc_config.hmc_steps_per_iter = 0
   mcmc_config.hmc_num_leapfrog_steps = 10
 
   mcmc_config.slice_steps_per_iter = 0
@@ -100,7 +100,7 @@ def get_config():
   config.initial_sampler_config = initial_sampler_config
 
 
-  config.craft_num_iters = 1000
+  config.craft_num_iters = 10000
   config.craft_batch_size = 2000
   optimization_config.craft_step_size = 1e-2
 
