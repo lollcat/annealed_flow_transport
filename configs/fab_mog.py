@@ -58,24 +58,32 @@ def get_config():
   config.final_config = final_config
 
   flow_config = ConfigDict()
-  flow_config.type = 'SplineInverseAutoregressiveFlow'
-  flow_config.num_spline_bins = 10
-  flow_config.num_bins = 10
-  flow_config.intermediate_hids_per_dim = 30
+  flow_config.type = 'AffineInverseAutoregressiveFlow'
+  flow_config.intermediate_hids_per_dim = 40
   flow_config.num_layers = 3
   flow_config.identity_init = True
-  flow_config.lower_lim = - 60.  # -4.
-  flow_config.upper_lim = 60.  # 4.
-  flow_config.min_bin_size = 1e-4
-  flow_config.min_derivative = 1e-4
   flow_config.bias_last = True
+
+
+  # flow_config = ConfigDict()
+  # flow_config.type = 'SplineInverseAutoregressiveFlow'
+  # flow_config.num_spline_bins = 10
+  # flow_config.num_bins = 10
+  # flow_config.intermediate_hids_per_dim = 30
+  # flow_config.num_layers = 3
+  # flow_config.identity_init = True
+  # flow_config.lower_lim = - 60.  # -4.
+  # flow_config.upper_lim = 60.  # 4.
+  # flow_config.min_bin_size = 1e-4
+  # flow_config.min_derivative = 1e-4
+  # flow_config.bias_last = True
 
   config.flow_config = flow_config
 
   mcmc_config = ConfigDict()
   mcmc_config.rwm_steps_per_iter = 10
   rw_step_config = ConfigDict()
-  rw_step_config.step_sizes = [1.0, 1.0, 1.0, 1.0]  # really big to give good chance of discovering modes
+  rw_step_config.step_sizes = [5.0, 5.0, 5.0, 5.0]
   rw_step_config.step_times = [0., 0.25, 0.5, 1.]
   mcmc_config.rwm_step_config = rw_step_config
 
