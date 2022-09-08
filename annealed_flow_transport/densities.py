@@ -285,6 +285,12 @@ class LogGaussianCoxPines(LogDensity):
   def evaluate_log_density(self, x: Array) -> Array:
     return jax.vmap(self._posterior_log_density)(x)
 
+def effective_sample_size(log_w, normalised=False):
+  # effective sample size, see https://arxiv.org/abs/1602.03572
+  assert len(log_w.shape) == 1
+  if not normalised:
+    log_w = jax.nn.softmax(log_w, axis=0)
+  return 1 / jnp.sum(log_w ** 2) / log_w.shape[0]
 
 class FABMoG(LogDensity):
   """A challenging mixture of Gaussians in two dimensions.
@@ -324,18 +330,16 @@ class FABMoG(LogDensity):
   def _check_constructor_inputs(self, unused_config: ConfigDict, num_dim: int):
     self._check_expected_num_dim(num_dim, 2, type(self).__name__)
 
-  def raw_log_density(self, x: Array) -> Array:
-    """A raw log density that we will then symmetrize."""
-    return self.distribution.log_prob(x)
-
-  def make_2d_invariant(self, log_density, x: Array) -> Array:
-    density_a = log_density(x)
-    density_b = log_density(np.flip(x))
-    return jnp.logaddexp(density_a, density_b) - jnp.log(2)
-
   def evaluate_log_density(self, x: Array) -> Array:
-    density_func = lambda x: self.make_2d_invariant(self.raw_log_density, x)
-    return jax.vmap(density_func)(x)
+    return jax.vmap(self.distribution.log_prob)(x)
+
+  def eval(self, x, log_w, log_q_fn, batch_size):
+    # TODO
+    ess = effective_sample_size(log_w, normalised=False)
+    return {"ess": ess}
+
+
+
 
 class ChallengingTwoDimensionalMixture(LogDensity):
   """A challenging mixture of Gaussians in two dimensions.

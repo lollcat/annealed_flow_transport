@@ -308,10 +308,18 @@ def outer_loop_craft(opt_update: UpdateFn,
                         delta_time=delta_time,
                         samples=final_samples,
                         log_weights=final_log_weights)
+      info = f'Step {step}: Free energy {overall_free_energy} Log Normalizer estimate {log_normalizer_estimate}'
       logging.info(
           'Step %05d: Free energy %f Log Normalizer estimate %f',
           step, overall_free_energy, log_normalizer_estimate
           )
+      print(info)
+      import matplotlib.pyplot as plt
+      from utils_fab import plot_contours_2D
+      fig, ax = plt.subplots()
+      plot_contours_2D(final_log_density, ax=ax, bound=60, levels=40)
+      ax.plot(final_samples[:, 0], final_samples[:, 1], "o")
+      plt.show()
 
   finish_time = time.time()
   delta_time = finish_time - start_time

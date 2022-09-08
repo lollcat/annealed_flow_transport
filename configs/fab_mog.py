@@ -28,9 +28,9 @@ def get_config():
   config.batch_size = 128
   config.estimation_batch_size = 2000
   config.sample_shape = (num_dim,)
-  config.report_step = 1
+  config.report_step = 1000
   config.vi_report_step = 50
-  config.num_temps = 4
+  config.num_temps = 6  # Number of distributions, number of CRAFT inner iter is num_temps-1
   config.step_logging = False
   config.resample_threshold = 0.3
   config.stopping_criterion = 'time'
@@ -39,6 +39,9 @@ def get_config():
   config.algo = 'craft'
   config.vi_iters = 1000
   config.vi_estimator = 'importance'
+  config.save_checkpoint = True
+  config.params_filename = "checkpoint"
+  config.checkpoint_interval = 1000
 
   optimization_config = ConfigDict()
   optimization_config.free_energy_iters = 1000
@@ -63,31 +66,17 @@ def get_config():
   flow_config = ConfigDict()
   flow_config.type = 'AffineInverseAutoregressiveFlow'
   flow_config.intermediate_hids_per_dim = 40
-  flow_config.num_layers = 15
+  flow_config.num_layers = 3  # total layers is this*(num_temps-1)
   flow_config.identity_init = True
   flow_config.bias_last = True
-
-
-  # flow_config = ConfigDict()
-  # flow_config.type = 'SplineInverseAutoregressiveFlow'
-  # flow_config.num_spline_bins = 10
-  # flow_config.num_bins = 10
-  # flow_config.intermediate_hids_per_dim = 30
-  # flow_config.num_layers = 3
-  # flow_config.identity_init = True
-  # flow_config.lower_lim = - 60.  # -4.
-  # flow_config.upper_lim = 60.  # 4.
-  # flow_config.min_bin_size = 1e-4
-  # flow_config.min_derivative = 1e-4
-  # flow_config.bias_last = True
 
   config.flow_config = flow_config
 
   mcmc_config = ConfigDict()
   mcmc_config.rwm_steps_per_iter = 1
   rw_step_config = ConfigDict()
-  rw_step_config.step_sizes = [5.0, 5.0, 5.0, 5.0, 5.0]
-  rw_step_config.step_times = [0., 0.25, 0.5, 0.75, 1.]
+  rw_step_config.step_sizes = [5.0, 5.0]  # constant step size
+  rw_step_config.step_times = [0., 1.]  # constant step size
   mcmc_config.rwm_step_config = rw_step_config
 
 
@@ -99,6 +88,5 @@ def get_config():
   initial_sampler_config = ConfigDict()
   initial_sampler_config.initial_sampler = 'MultivariateNormalDistribution'
   config.initial_sampler_config = initial_sampler_config
-
 
   return config

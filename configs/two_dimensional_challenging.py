@@ -76,7 +76,7 @@ def get_config():
   mcmc_config.rwm_steps_per_iter = 3
   rw_step_config = ConfigDict()
   rw_step_config.step_sizes = [0.5, 0.5, 0.5, 0.3]
-  rw_step_config.step_times = [0., 0.25, 0.5, 1.]# really big to give good chance of discovering modes
+  rw_step_config.step_times = [0., 0.25, 0.5, 1.]
   mcmc_config.rwm_step_config = rw_step_config
 
   hmc_step_config = ConfigDict()
