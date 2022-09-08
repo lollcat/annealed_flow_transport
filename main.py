@@ -18,6 +18,8 @@ from typing import Sequence
 
 from absl import app
 from absl import flags
+from jax.config import config
+config.update("jax_enable_x64", True)
 from annealed_flow_transport import train
 from ml_collections.config_flags import config_flags
 

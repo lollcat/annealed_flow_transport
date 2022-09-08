@@ -25,7 +25,7 @@ def get_config():
   num_dim = 2
 
   config.seed = 1
-  config.batch_size = 2000
+  config.batch_size = 128
   config.estimation_batch_size = 2000
   config.sample_shape = (num_dim,)
   config.report_step = 1
@@ -44,6 +44,9 @@ def get_config():
   optimization_config.free_energy_iters = 1000
   optimization_config.aft_step_size = 1e-3
   optimization_config.vi_step_size = 1e-3
+  config.craft_batch_size = 128
+  config.craft_num_iters = int(10_000_000/config.craft_batch_size)
+  optimization_config.craft_step_size = 1e-4
 
   config.optimization_config = optimization_config
 
@@ -60,7 +63,7 @@ def get_config():
   flow_config = ConfigDict()
   flow_config.type = 'AffineInverseAutoregressiveFlow'
   flow_config.intermediate_hids_per_dim = 40
-  flow_config.num_layers = 3
+  flow_config.num_layers = 15
   flow_config.identity_init = True
   flow_config.bias_last = True
 
@@ -81,35 +84,21 @@ def get_config():
   config.flow_config = flow_config
 
   mcmc_config = ConfigDict()
-  mcmc_config.rwm_steps_per_iter = 10
+  mcmc_config.rwm_steps_per_iter = 1
   rw_step_config = ConfigDict()
-  rw_step_config.step_sizes = [5.0, 5.0, 5.0, 5.0]
-  rw_step_config.step_times = [0., 0.25, 0.5, 1.]
+  rw_step_config.step_sizes = [5.0, 5.0, 5.0, 5.0, 5.0]
+  rw_step_config.step_times = [0., 0.25, 0.5, 0.75, 1.]
   mcmc_config.rwm_step_config = rw_step_config
 
-  hmc_step_config = ConfigDict()
-  hmc_step_config.step_times = [0., 0.25, 0.5, 1.0]
-  hmc_step_config.step_sizes = [0.5, 0.5, 0.5, 0.5]
-  mcmc_config.hmc_step_config = hmc_step_config
-  nuts_step_config = ConfigDict()
-  nuts_step_config.step_times = [0., 0.25, 0.5, 1.]
-  nuts_step_config.step_sizes = [2.0, 2.0, 2.0, 2.0]
-  mcmc_config.hmc_steps_per_iter = 0
-  mcmc_config.hmc_num_leapfrog_steps = 10
 
+  mcmc_config.hmc_steps_per_iter = 0
   mcmc_config.slice_steps_per_iter = 0
   mcmc_config.nuts_steps_per_iter = 0
-  mcmc_config.slice_max_doublings = 5
-  mcmc_config.nuts_max_tree_depth = 4
   config.mcmc_config = mcmc_config
 
   initial_sampler_config = ConfigDict()
   initial_sampler_config.initial_sampler = 'MultivariateNormalDistribution'
   config.initial_sampler_config = initial_sampler_config
 
-
-  config.craft_num_iters = 10000
-  config.craft_batch_size = 2000
-  optimization_config.craft_step_size = 1e-2
 
   return config
