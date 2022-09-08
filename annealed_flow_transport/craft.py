@@ -23,6 +23,7 @@ import annealed_flow_transport.aft_types as tp
 import jax
 import jax.numpy as jnp
 import optax
+from tqdm import tqdm
 
 
 Array = jnp.ndarray
@@ -295,7 +296,7 @@ def outer_loop_craft(opt_update: UpdateFn,
   logging.info('Launching training...')
 
   start_time = time.time()
-  for step in range(config.craft_num_iters):
+  for step in tqdm(range(config.craft_num_iters)):
     key, subkey = jax.random.split(key)
     final_samples, final_log_weights, transition_params, opt_states, overall_free_energy, log_normalizer_estimate = inner_loop_jit(
         subkey, opt_states, transition_params)

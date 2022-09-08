@@ -333,7 +333,7 @@ class FABMoG(LogDensity):
   def evaluate_log_density(self, x: Array) -> Array:
     return jax.vmap(self.distribution.log_prob)(x)
 
-  def eval(self, x, log_w, log_q_fn, batch_size):
+  def eval(self, x, log_w):
     # TODO
     ess = effective_sample_size(log_w, normalised=False)
     return {"ess": ess}

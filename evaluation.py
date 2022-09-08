@@ -17,10 +17,10 @@ def eval(forward_pass_function):
     key = jax.random.PRNGKey(0)
     particle_state: ParticleState = forward_pass_function(key)
     eval_info = target.eval(x=particle_state.samples,
-                            log_w=particle_state.log_weights,
-                            log_q_fn=None,
-                            batch_size=None)
+                            log_w=particle_state.log_weights)
+
     return eval_info
+
 
 def setup_basic_objects(config):
     """Copied from train.py
@@ -67,6 +67,7 @@ def make_forward_pass_func(config, transition_params, eval_batch_size = 256):
         return particle_state
 
     return forward_pass
+
 
 
 if __name__ == '__main__':
