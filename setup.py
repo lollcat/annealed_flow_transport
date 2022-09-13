@@ -32,6 +32,7 @@ REQUIRED_PACKAGES = [
     'tensorflow>=2.5.0',
     'tensorflow_probability>=0.13.0',
     'tensorflow_datasets>=4.3.0',
+    'distrax'
 ]
 
 
