@@ -13,7 +13,7 @@ from jax.config import config
 config.update("jax_enable_x64", True)
 
 
-def eval(forward_pass_function, n_runs=5):
+def evaluate(forward_pass_function, n_runs=5):
     target = FABMoG(config, 2)
     key = jax.random.PRNGKey(0)
 
@@ -27,7 +27,7 @@ def eval(forward_pass_function, n_runs=5):
     x = jnp.concatenate(x_s, axis=0)
     log_w = jnp.concatenate(log_w_s, axis=0)
 
-    # run eval
+    # run evaluate
     eval_info = target.eval(x=x, log_w=log_w)
     return eval_info
 
@@ -86,5 +86,5 @@ if __name__ == '__main__':
     config = get_config()
     transition_params = load_checkpoint(filename)
     forward_pass_function = make_forward_pass_func(config, transition_params=transition_params)
-    eval_info = eval(forward_pass_function)
+    eval_info = evaluate(forward_pass_function)
     print(eval_info)
