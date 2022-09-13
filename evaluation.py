@@ -82,7 +82,7 @@ def make_forward_pass_func(config, transition_params, eval_batch_size=int(1000))
 
 
 if __name__ == '__main__':
-    filename = "checkpoint"
+    filename = "checkpoint_old"
     config = get_config()
     transition_params = load_checkpoint(filename)
     forward_pass_function = make_forward_pass_func(config, transition_params=transition_params)
