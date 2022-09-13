@@ -8,17 +8,27 @@ from annealed_flow_transport import samplers
 from configs.fab_mog import get_config
 import haiku as hk
 import jax
+import jax.numpy as jnp
 from jax.config import config
 config.update("jax_enable_x64", True)
 
 
-def eval(forward_pass_function):
+def eval(forward_pass_function, n_runs=5):
     target = FABMoG(config, 2)
     key = jax.random.PRNGKey(0)
-    particle_state: ParticleState = forward_pass_function(key)
-    eval_info = target.eval(x=particle_state.samples,
-                            log_w=particle_state.log_weights)
 
+    # collect
+    x_s = []
+    log_w_s = []
+    for i in range(n_runs):
+        particle_state: ParticleState = forward_pass_function(key)
+        x_s.append(particle_state.samples)
+        log_w_s.append(particle_state.log_weights)
+    x = jnp.concatenate(x_s, axis=0)
+    log_w = jnp.concatenate(log_w_s, axis=0)
+
+    # run eval
+    eval_info = target.eval(x=x, log_w=log_w)
     return eval_info
 
 
@@ -40,7 +50,7 @@ def setup_basic_objects(config):
     return initial_sampler, log_density_initial, log_density_final, flow_func
 
 
-def make_forward_pass_func(config, transition_params, eval_batch_size = 256):
+def make_forward_pass_func(config, transition_params, eval_batch_size=int(1000)):
     config.craft_batch_size = eval_batch_size
     num_temps = config.num_temps
 
@@ -54,6 +64,7 @@ def make_forward_pass_func(config, transition_params, eval_batch_size = 256):
     markov_kernel_by_step = markov_kernel.MarkovTransitionKernel(
         config.mcmc_config, log_density_by_step, num_temps)
 
+    @jax.jit
     def forward_pass(key) -> ParticleState:
         particle_state = craft_evaluation_loop(
             key=key,

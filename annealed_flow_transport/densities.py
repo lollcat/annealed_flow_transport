@@ -14,6 +14,7 @@
 
 """Code for probability densities."""
 
+from typing import Callable
 import abc
 import pickle
 
@@ -292,39 +293,64 @@ def effective_sample_size(log_w, normalised=False):
     log_w = jax.nn.softmax(log_w, axis=0)
   return 1 / jnp.sum(log_w ** 2) / log_w.shape[0]
 
+
+def setup_quadratic_function(x_shift, A, b):
+  def quadratic_function(x):
+    # example function that we may want to calculate expectations over
+    x = x + x_shift
+    return jnp.einsum("bi,ij,bj->b", x, A, x) + jnp.einsum("i,bi->b", b, x)
+  return quadratic_function
+
+def importance_weighted_expectation(f: Callable[[jnp.ndarray], jnp.ndarray], x: jnp.ndarray,
+                                    log_w: jnp.ndarray) -> jnp.ndarray:
+  """Evaluate expectation using samples and log probs."""
+  normalised_importance_weights = jax.nn.softmax(log_w, axis=-1)
+  function_values = f(x)
+  expectation = normalised_importance_weights.T @ function_values
+  return expectation
+
 class FABMoG(LogDensity):
-  """A challenging mixture of Gaussians in two dimensions.
+  """Load the GMM problem used for FAB.
 
   num_dim should be 2. config is unused in this case.
   """
 
   def __init__(self, *args, **kwargs):
     super(FABMoG, self).__init__(*args, **kwargs)
+    # Setup Distribution.
     dim = 2
     n_mixes = 40
-    loc_scaling = 40
-    log_var_scaling = 1.0
     seed = 0
     self.seed = seed
     self.n_mixes = n_mixes
     self.dim = dim
-    key = jax.random.PRNGKey(seed)
     logits = jnp.ones(n_mixes)
-    # mean = jax.random.uniform(shape=(n_mixes, dim), key=key, minval=-1.0, maxval=1.0) * loc_scaling
-    # log_var = jnp.ones(shape=(n_mixes, dim)) * log_var_scaling
     params = pickle.load(open("annealed_flow_transport/data/gmm_problem.pkl", "rb"))
     mean = params["mean"]
     scale_tri = params["scale_tril"]
 
 
     mixture_dist = distrax.Categorical(logits=logits)
-
     components_dist = distrax.MultivariateNormalTri(
       loc=mean, scale_tri=scale_tri)
     self.distribution = distrax.MixtureSameFamily(
       mixture_distribution=mixture_dist,
       components_distribution=components_dist,
     )
+
+    # Setup Quadratic Function
+    A = params["expectation_A"]
+    b = params['expectation_b']
+    x_shit = params["expectation_x_shift"]
+    self.quadratic_f = setup_quadratic_function(x_shit, A, b)
+    self.true_expectation = params["true_expectation"]
+
+
+    # For checking.
+    n_samples = int(1e6)
+    target_samples = self.distribution.sample(seed=jax.random.PRNGKey(1),
+                                              sample_shape=(n_samples,))
+    self.true_expectation_check = jnp.mean(self.quadratic_f(target_samples))
 
 
   def _check_constructor_inputs(self, unused_config: ConfigDict, num_dim: int):
@@ -333,10 +359,24 @@ class FABMoG(LogDensity):
   def evaluate_log_density(self, x: Array) -> Array:
     return jax.vmap(self.distribution.log_prob)(x)
 
+  def eval_expectation(self, x, log_w):
+    expectation = importance_weighted_expectation(self.quadratic_f, x, log_w)
+    bias_normed = (expectation - self.true_expectation) / self.true_expectation
+    return bias_normed
+
   def eval(self, x, log_w):
-    # TODO
+    n_runs = 100
+    bias_normed = jax.vmap(self.eval_expectation)(
+      jnp.array(jnp.split(x, n_runs)), jnp.array(jnp.split(log_w, n_runs)))
+    bias_normed_unweighted = jax.vmap(self.eval_expectation)(
+      jnp.array(jnp.split(x, n_runs)),
+      jnp.array(jnp.split(jnp.ones_like(log_w), n_runs))
+    )
     ess = effective_sample_size(log_w, normalised=False)
-    return {"ess": ess}
+    info = {"ess": ess,
+            "bias": np.mean(np.abs(bias_normed)),
+            "bias_unweighted": np.mean(np.abs(bias_normed_unweighted))}
+    return info
 
 
 
