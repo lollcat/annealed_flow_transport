@@ -755,6 +755,8 @@ class CouplingLayer(object):
     return output_x, log_abs_det
 
 
+
+
 class ConvAffineCoupling(CouplingLayer):
   """A convolutional affine coupling layer."""
 
