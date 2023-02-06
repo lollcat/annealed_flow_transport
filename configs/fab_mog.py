@@ -56,7 +56,7 @@ def get_config():
   initial_config = ConfigDict()
   initial_config.density = 'MultivariateNormalDistribution'
   initial_config.shared_mean = 0.
-  initial_config.diagonal_cov = 100.
+  initial_config.diagonal_cov = 1.
   config.initial_config = initial_config
 
   final_config = ConfigDict()
@@ -87,7 +87,7 @@ def get_config():
 
   initial_sampler_config = ConfigDict()
   initial_sampler_config.initial_sampler = 'MultivariateNormalDistribution'
-  initial_sampler_config.diagonal_cov =100.0
+  initial_sampler_config.diagonal_cov =1.0
   config.initial_sampler_config = initial_sampler_config
 
   return config
