@@ -323,8 +323,8 @@ def outer_loop_craft(opt_update: UpdateFn,
                           delta_time=delta_time,
                           samples=final_samples,
                           log_weights=final_log_weights)
-          plot(final_samples[:config.n_samples_plotting], density_by_step._final_log_density)
-          plt.show()
+        plot(final_samples[:config.n_samples_plotting], density_by_step._final_log_density)
+        plt.show()
         info = f'Step {step}: Free energy {overall_free_energy} Log Normalizer estimate {log_normalizer_estimate}'
         logging.info(
             'Step %05d: Free energy %f Log Normalizer estimate %f',
@@ -332,6 +332,8 @@ def outer_loop_craft(opt_update: UpdateFn,
         )
         print(info)
 
+  plot(final_samples[:config.n_samples_plotting], density_by_step._final_log_density, n_rows=16)
+  plt.show()
 
   finish_time = time.time()
   delta_time = finish_time - start_time

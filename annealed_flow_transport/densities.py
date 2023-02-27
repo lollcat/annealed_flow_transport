@@ -602,6 +602,7 @@ class ManyWell(LogDensity):
   def __init__(self, config: ConfigDict, sample_shape: SampleShape):
     super().__init__(config, sample_shape)
     self._num_dim = sample_shape[0]
+    pass
 
   def  _check_constructor_inputs(self, config: ConfigDict,
                                  sample_shape: SampleShape):
@@ -629,3 +630,10 @@ class ManyWell(LogDensity):
     (num_batch, num_dim) = x.shape
     reshaped_x = jnp.reshape(x, (num_batch, num_dim//2, 2))
     return jax.vmap(self.many_well_log_density)(reshaped_x)
+  @property
+  def log_Z(self):
+      log_Z_dim0 = np.log(11784.50927)
+      log_Z_dim1 = 0.5 * np.log(2 * jnp.pi)
+      log_Z_2D = log_Z_dim0 + log_Z_dim1
+      n_repeats = (self._num_dim // 2)
+      return log_Z_2D * n_repeats
