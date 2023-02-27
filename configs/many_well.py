@@ -23,15 +23,15 @@ def get_config():
   config.n_samples_plotting = 200
 
   config.seed = 1
-  config.batch_size = 2000
-  config.estimation_batch_size = 2000
+  config.batch_size = 2048
+  config.estimation_batch_size = 2048
   config.sample_shape = (32,)
   config.report_step = 50
   config.vi_report_step = 100
   config.use_x64 = False
   config.num_layers = 1
   config.step_logging = True
-  config.num_temps = 11
+  config.num_temps = 5
   config.resample_threshold = 0.3
   config.write_samples = False
   config.stopping_criterion = 'time'
@@ -68,7 +68,7 @@ def get_config():
   config.final_config = final_config
 
   flow_config = ConfigDict()
-  flow_config.type = 'SplineInverseAutoregressiveFlow'
+  flow_config.type = 'AffineInverseAutoregressiveFlow'
   flow_config.num_spline_bins = 10
   flow_config.lower_lim = -3.
   flow_config.intermediate_hids_per_dim = 30
@@ -105,7 +105,7 @@ def get_config():
   mcmc_config.hmc_steps_per_iter = 1
   mcmc_config.use_jax_hmc = True
   mcmc_config.rwm_steps_per_iter = 0
-  mcmc_config.hmc_num_leapfrog_steps = 10
+  mcmc_config.hmc_num_leapfrog_steps = 5
 
   mcmc_config.slice_steps_per_iter = 0
   mcmc_config.nuts_steps_per_iter = 0
