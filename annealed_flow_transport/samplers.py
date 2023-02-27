@@ -21,6 +21,7 @@ import jax
 
 RandomKey = tp.RandomKey
 Array = tp.Array
+import jax.numpy as jnp
 
 
 class NormalDistribution(object):
