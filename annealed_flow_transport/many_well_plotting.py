@@ -51,7 +51,7 @@ def get_target_log_prob_marginal_pair(log_prob, i: int, j: int, total_dim: int):
     return log_prob_marginal_pair
 
 
-def plot(samples, target_log_prob, n_rows=4, plotting_bounds=(-3, 3)):
+def plot(samples, target_log_prob, n_rows=8, plotting_bounds=(-3, 3)):
     dim = samples.shape[-1]
     fig, axs = plt.subplots(n_rows, n_rows, sharex=True, sharey=True, figsize=(n_rows * 3, n_rows * 3))
 
