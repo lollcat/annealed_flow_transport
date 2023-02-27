@@ -332,7 +332,7 @@ def outer_loop_craft(opt_update: UpdateFn,
         )
         print(info)
 
-  plot(final_samples[:config.n_samples_plotting], density_by_step._final_log_density, n_rows=16)
+  plot(final_samples[:config.n_samples_plotting], density_by_step._final_log_density)
   plt.show()
 
   finish_time = time.time()
