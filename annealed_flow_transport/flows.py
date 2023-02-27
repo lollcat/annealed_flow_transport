@@ -922,7 +922,7 @@ class ConvAffineCouplingStack(ConfigurableFlow):
     restored_x = jnp.reshape(transformed_x, x.shape)
     return restored_x, log_abs_det
 
-  def inv_transform_and_log_abs_det_jac(self, x: Array) -> tuple[Array, Array]:
+  def inv_transform_and_log_abs_det_jac(self, x: Array) -> Tuple[Array, Array]:
     reshaped_x = jnp.reshape(x, self._true_shape)
     transformed_x = reshaped_x
     log_abs_det = 0.
