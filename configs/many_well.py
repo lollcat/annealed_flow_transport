@@ -67,19 +67,25 @@ def get_config():
   final_config.density = 'ManyWell'
   config.final_config = final_config
 
+
   flow_config = ConfigDict()
   flow_config.type = 'AffineInverseAutoregressiveFlow'
-  flow_config.num_spline_bins = 10
-  flow_config.lower_lim = -3.
-  flow_config.intermediate_hids_per_dim = 30
-  flow_config.num_layers = 3
+  flow_config.intermediate_hids_per_dim = 16
+  flow_config.num_layers = 3  # total layers is this*(num_temps-1)
   flow_config.identity_init = True
   flow_config.bias_last = True
-  flow_config.upper_lim = 3.
-  flow_config.min_bin_size = 1e-2
-  flow_config.min_derivative = 1e-2
-  flow_config.num_elem = config.sample_shape[0]
-  flow_config.sample_shape = config.sample_shape
+  # flow_config.type = 'SplineInverseAutoregressiveFlow'
+  # flow_config.num_spline_bins = 10
+  # flow_config.lower_lim = -3.
+  # flow_config.intermediate_hids_per_dim = 30
+  # flow_config.num_layers = 3
+  # flow_config.identity_init = True
+  # flow_config.bias_last = True
+  # flow_config.upper_lim = 3.
+  # flow_config.min_bin_size = 1e-2
+  # flow_config.min_derivative = 1e-2
+  # flow_config.num_elem = config.sample_shape[0]
+  # flow_config.sample_shape = config.sample_shape
   config.flow_config = flow_config
   initial_sampler_config = ConfigDict()
   initial_sampler_config.initial_sampler = 'MultivariateNormalDistribution'
