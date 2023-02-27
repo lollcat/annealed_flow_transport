@@ -23,6 +23,11 @@ import jax
 import jax.numpy as jnp
 import optax
 
+import matplotlib.pyplot as plt
+from tqdm import tqdm
+from annealed_flow_transport.many_well_plotting import plot
+from functools import partial
+
 
 Array = tp.Array
 Samples = tp.Samples
@@ -302,7 +307,7 @@ def outer_loop_craft(opt_update: UpdateFn,
   logging.info('Launching training...')
 
   start_time = time.time()
-  for step in range(config.craft_num_iters):
+  for step in tqdm(range(config.craft_num_iters)):
     with jax.profiler.StepTraceAnnotation('train', step_num=step):
       key, subkey = jax.random.split(key)
       final_samples, final_log_weights, transition_params, opt_states, overall_free_energy, log_normalizer_estimate = inner_loop_jit(
@@ -316,10 +321,14 @@ def outer_loop_craft(opt_update: UpdateFn,
                           delta_time=delta_time,
                           samples=final_samples,
                           log_weights=final_log_weights)
+        info = f'Step {step}: Free energy {overall_free_energy} Log Normalizer estimate {log_normalizer_estimate}'
         logging.info(
             'Step %05d: Free energy %f Log Normalizer estimate %f',
             step, overall_free_energy, log_normalizer_estimate
-            )
+        )
+        print(info)
+        plot(final_samples, density_by_step._final_log_density)
+        plt.show()
 
   finish_time = time.time()
   delta_time = finish_time - start_time
