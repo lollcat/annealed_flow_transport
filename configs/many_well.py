@@ -24,7 +24,7 @@ def get_config():
 
   config.seed = 1
   config.batch_size = 2000
-  config.estimation_batch_size = 2000
+  config.estimation_batch_size = 1000
   config.sample_shape = (32,)
   config.report_step = 20
   config.vi_report_step = 100
