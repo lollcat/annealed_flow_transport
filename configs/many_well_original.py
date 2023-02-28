@@ -24,8 +24,9 @@ def get_config():
   config.seed = 1
   config.batch_size = 2000
   config.estimation_batch_size = 2000
+  config.craft_num_iters = 200
   config.sample_shape = (32,)
-  config.report_step = 1
+  config.report_step = config.craft_num_iters // 6
   config.vi_report_step = 100
   config.use_x64 = False
   config.num_layers = 1
@@ -38,7 +39,6 @@ def get_config():
   config.use_markov = True
   config.algo = 'craft'
   config.optim_markov = False
-  config.craft_num_iters = 200
   config.snf_num_iters = 1000
   config.fcraft_num_iters = 500
   config.craft_batch_size = 2000
@@ -112,5 +112,9 @@ def get_config():
   mcmc_config.iters = 1
   config.mcmc_config = mcmc_config
   config.save_params = False
+
+  config.save_checkpoint = True
+  config.params_filename = "checkpoint_craft_mw_original"
+  config.checkpoint_interval = config.report_step
 
   return config
