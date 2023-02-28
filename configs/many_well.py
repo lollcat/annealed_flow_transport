@@ -42,7 +42,7 @@ def get_config():
   config.optim_markov = False
   config.snf_num_iters = 1000
   config.fcraft_num_iters = 500
-  config.craft_batch_size = 2000
+  config.craft_batch_size = config.batch_size
   config.snf_batch_size = 2000
   config.fcraft_batch_size = 2000
   config.vi_iters = 100000

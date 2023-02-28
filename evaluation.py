@@ -44,10 +44,13 @@ def evaluate_many_well(forward_pass_function, n_runs=5):
         x_s.append(particle_state.samples)
         log_w_s.append(particle_state.log_weights)
     log_w = jnp.stack(log_w_s, axis=0)
+    x = jnp.stack(x_s, axis=0)
 
     # run evaluate
     ess_s = 1 / jnp.sum(jax.nn.softmax(log_w, axis=-1) ** 2, axis=-1) / log_w.shape[-1]
-    return ess_s
+    info = {}
+    info.update(ess=ess_s, x=x, log_w=log_w)
+    return info
 
 
 def setup_basic_objects(config):
