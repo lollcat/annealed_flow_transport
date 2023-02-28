@@ -49,6 +49,7 @@ def get_ess_per_flow_step(initial_sampler, flow_apply, markov_kernel_apply,
         config.craft_batch_size)
     ess_hist = []
     for i in range(config.num_temps - 1):
+        key, subkey = jax.random.split(key)
         flow_params = jax.tree_map(lambda x: x[i], flow_params_full)
         samples, next_log_weights, acceptance_tuple = update_samples_log_weights_for_get_ess_per_flow(
             flow_apply=flow_apply, markov_kernel_apply=markov_kernel_apply,

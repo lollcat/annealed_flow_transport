@@ -46,6 +46,7 @@ def get_craft_info_per_step(initial_sampler, flow_apply, markov_kernel_apply,
   n_unique_samples_hist = []
   ess_hist = []
   for i in range(config.num_temps - 1):
+    key, subkey = jax.random.split(key)
     flow_params = jax.tree_map(lambda x: x[i], flow_params_full)
     samples, log_weights, acceptance_tuple, n_unique_samples, ess = update_samples_log_weights_with_info(
       flow_apply=jax.jit(flow_apply), markov_kernel_apply=jax.jit(markov_kernel_apply),
