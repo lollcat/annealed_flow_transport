@@ -121,4 +121,5 @@ def get_config():
   config.mcmc_config = mcmc_config
   config.save_params = False
 
+  config.save_checkpoint = True
   return config
