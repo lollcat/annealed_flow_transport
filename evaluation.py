@@ -21,7 +21,8 @@ def evaluate_mog(forward_pass_function, n_runs=5):
     x_s = []
     log_w_s = []
     for i in range(n_runs):
-        particle_state: ParticleState = forward_pass_function(key)
+        key, subkey = jax.random.split(key)
+        particle_state: ParticleState = forward_pass_function(subkey)
         x_s.append(particle_state.samples)
         log_w_s.append(particle_state.log_weights)
     x = jnp.concatenate(x_s, axis=0)
@@ -38,7 +39,8 @@ def evaluate_many_well(forward_pass_function, n_runs=5):
     x_s = []
     log_w_s = []
     for i in range(n_runs):
-        particle_state: ParticleState = forward_pass_function(key)
+        key, subkey = jax.random.split(key)
+        particle_state: ParticleState = forward_pass_function(subkey)
         x_s.append(particle_state.samples)
         log_w_s.append(particle_state.log_weights)
     log_w = jnp.stack(log_w_s, axis=0)
