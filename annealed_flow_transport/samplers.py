@@ -45,7 +45,7 @@ class MultivariateNormalDistribution(object):
 
   def __init__(self, config):
     self._config = config
-    self.diagonal_cov = config.diagonal_cov if config.diagonal_cov else 1.
+    self.diagonal_cov = config.diagonal_cov if hasattr(config, 'diagonal_cov') else 1.
 
   def __call__(self, key: RandomKey, num_samples: int,
                sample_shape: Tuple[int]) -> Array:
