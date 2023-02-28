@@ -25,7 +25,7 @@ from ml_collections.config_flags import config_flags
 
 FLAGS = flags.FLAGS
 config_flags.DEFINE_config_file('config',
-                                './configs/many_well.py',
+                                './configs/many_well_original.py',
                                 # './configs/two_dimensional_challenging.py',
                                 'Training configuration.')
 

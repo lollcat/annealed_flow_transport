@@ -3,12 +3,17 @@ import jax.random
 from annealed_flow_transport.flow_transport import *
 from annealed_flow_transport.resampling import log_effective_sample_size
 
-def update_samples_log_weights(
+def update_samples_log_weights_for_get_ess_per_flow(
     flow_apply: FlowApply, markov_kernel_apply: MarkovKernelApply,
     flow_params: FlowParams, samples: Samples, log_weights: Array,
     key: RandomKey, log_density: LogDensityByStep, step: int,
     use_markov: bool) -> Tuple[Array, Array, AcceptanceTuple]:
-  """Update samples and log weights once the flow has been learnt."""
+  """Update samples and log weights once the flow has been learnt.
+  This is for use in the `get_ess_per_flow_step` function and
+  1. Always resamples
+  2. Saves the log weight change for an individual flow transport step,
+    to see what it's 'effective sample size" is.
+  """
   use_resampling = True
   resample_threshold = 1.  # always resample
   transformed_samples, _ = flow_apply(flow_params, samples)
@@ -45,7 +50,7 @@ def get_ess_per_flow_step(initial_sampler, flow_apply, markov_kernel_apply,
     ess_hist = []
     for i in range(config.num_temps - 1):
         flow_params = jax.tree_map(lambda x: x[i], flow_params_full)
-        samples, next_log_weights, acceptance_tuple = update_samples_log_weights(
+        samples, next_log_weights, acceptance_tuple = update_samples_log_weights_for_get_ess_per_flow(
             flow_apply=flow_apply, markov_kernel_apply=markov_kernel_apply,
             flow_params=flow_params, samples=samples, log_weights=jnp.zeros_like(initial_log_weights),
             key=key, log_density=log_density, step=i + 1,

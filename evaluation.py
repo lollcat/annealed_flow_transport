@@ -13,6 +13,7 @@ from jax.config import config
 # config.update("jax_enable_x64", True)
 
 from ess_per_step import get_ess_per_flow_step
+from craft_per_step_info import get_craft_info_per_step
 
 
 def evaluate_mog(forward_pass_function, n_runs=5):
@@ -126,6 +127,30 @@ def make_get_ess(config, transition_params, eval_batch_size=int(1000)):
     return get_ess_per_layer_fn
 
 
+def make_get_resample_info(config, transition_params, eval_batch_size=int(1000)):
+    config.craft_batch_size = eval_batch_size
+    num_temps = config.num_temps
+
+    initial_sampler, log_density_initial, log_density_final, flow_func = \
+        setup_basic_objects(config)
+
+    flow_forward_fn = hk.without_apply_rng(hk.transform(flow_func))
+    flow_apply = flow_forward_fn.apply
+    log_density_by_step = flow_transport.GeometricAnnealingSchedule(
+        log_density_initial, log_density_final, num_temps)
+    markov_kernel_by_step = markov_kernel.MarkovTransitionKernel(
+        config.mcmc_config, log_density_by_step, num_temps)
+
+    # @jax.jit
+    def get_craft_info_per_step_fn(key) -> ParticleState:
+        ess_per_layer = get_craft_info_per_step(initial_sampler, flow_apply, markov_kernel_by_step,
+                          transition_params, log_density_by_step,
+                          key, config)
+        return ess_per_layer
+
+    return get_craft_info_per_step_fn
+
+
 
 if __name__ == '__main__':
     mw = True
@@ -143,7 +168,11 @@ if __name__ == '__main__':
     forward_pass_function = make_forward_pass_func(config, transition_params=transition_params)
     get_ess_per_layer_fn = make_get_ess(config=config, transition_params=transition_params,
                                         eval_batch_size=100)
+    get_resample_info_fn = make_get_resample_info(config=config, transition_params=transition_params,
+                                        eval_batch_size=100)
+
     if mw:
+        resample_info = get_resample_info_fn(jax.random.PRNGKey(0))
         ess_per_step = get_ess_per_layer_fn(jax.random.PRNGKey(0))
         eval_info = evaluate_many_well(forward_pass_function)
     else:
