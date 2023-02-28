@@ -17,8 +17,8 @@ def update_samples_log_weights_with_info(
   assert_equal_shape([log_weights_new, log_weights])
   if use_resampling:
     subkey, key = jax.random.split(key)
-    indices = jax.random.categorical(key, log_weights,
-                                     shape=(log_weights.shape[0],))
+    indices = jax.random.categorical(key, log_weights_new,
+                                     shape=(log_weights_new.shape[0],))
     n_unique_samples = jnp.unique(indices).shape[0]
     ess = jnp.exp(log_effective_sample_size(log_weights_new)) / log_weights_new.shape[0]
     resampled_samples, log_weights_resampled = resampling.optionally_resample(
