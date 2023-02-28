@@ -89,7 +89,6 @@ def get_config():
   config.flow_config = flow_config
   initial_sampler_config = ConfigDict()
   initial_sampler_config.initial_sampler = 'MultivariateNormalDistribution'
-  initial_sampler_config.diagonal_cov = 1.0
   config.initial_sampler_config = initial_sampler_config
 
   mcmc_config = ConfigDict()
@@ -122,4 +121,6 @@ def get_config():
   config.save_params = False
 
   config.save_checkpoint = True
+  config.params_filename = "checkpoint"
+  config.checkpoint_interval = config.report_step
   return config
