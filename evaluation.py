@@ -20,7 +20,7 @@ def get_flow_init_params(config, key=jax.random.PRNGKey(0)):
     initial_sampler, log_density_initial, log_density_final, flow_func = \
         setup_basic_objects(config)
     flow_forward_fn = hk.without_apply_rng(hk.transform(flow_func))
-    flow_init_params = flow_forward_fn.init(key, jnp.zeros(1, *config.sample_shape))
+    flow_init_params = flow_forward_fn.init(key, jnp.zeros((1, *config.sample_shape)))
     repeater = lambda x: jnp.repeat(x[None], config.num_temps - 1, axis=0)
     transition_params = jax.tree_util.tree_map(repeater, flow_init_params)
     return transition_params
