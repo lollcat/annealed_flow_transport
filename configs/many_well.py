@@ -25,7 +25,6 @@ def get_config():
   config.seed = 1
   config.batch_size = 2048
   config.estimation_batch_size = 2048
-  config.craft_num_iters = 200
   config.sample_shape = (32,)
   config.report_step = config.craft_num_iters // 6
   config.vi_report_step = 100
@@ -123,4 +122,8 @@ def get_config():
   config.save_checkpoint = True
   config.params_filename = "checkpoint_craft_mw"
   config.checkpoint_interval = config.report_step
+
+
+  config.craft_num_iters = int(1e10 / mcmc_config.hmc_num_leapfrog_steps / config.batch_size / (config.num_temps - 1))
+  print(f"training for {config.craft_num_iters} iterations")
   return config
