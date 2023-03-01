@@ -119,12 +119,11 @@ def get_config():
   config.mcmc_config = mcmc_config
   config.save_params = False
 
-  config.save_checkpoint = True
-  config.params_filename = "checkpoint_craft_mw"
-  config.checkpoint_interval = config.report_step
-
-
   config.craft_num_iters = int(1e10 / mcmc_config.hmc_num_leapfrog_steps / config.batch_size / (config.num_temps - 1))
   config.report_step = config.craft_num_iters // 6
   print(f"training for {config.craft_num_iters} iterations")
+
+  config.save_checkpoint = True
+  config.params_filename = "checkpoint_craft_mw"
+  config.checkpoint_interval = config.report_step
   return config
