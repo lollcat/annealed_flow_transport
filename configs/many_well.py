@@ -27,6 +27,7 @@ def get_config():
   config.estimation_batch_size = 2048
   config.sample_shape = (32,)
   config.report_step = config.craft_num_iters // 6
+  config.use_plotting = False
   config.vi_report_step = 100
   config.use_x64 = False
   config.num_layers = 1

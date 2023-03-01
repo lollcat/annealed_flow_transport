@@ -20,6 +20,7 @@ ConfigDict = ml_collections.ConfigDict
 def get_config():
   """Returns a many well experiment config as ConfigDict."""
   config = ConfigDict()
+  config.use_plotting = False
 
   config.seed = 1
   config.batch_size = 2000
