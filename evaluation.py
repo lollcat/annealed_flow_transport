@@ -16,6 +16,16 @@ from ess_per_step import get_ess_per_flow_step
 from craft_per_step_info import get_craft_info_per_step
 
 
+def get_flow_init_params(config, key=jax.random.PRNGKey(0)):
+    initial_sampler, log_density_initial, log_density_final, flow_func = \
+        setup_basic_objects(config)
+    flow_forward_fn = hk.without_apply_rng(hk.transform(flow_func))
+    flow_init_params = flow_forward_fn.init(key, jnp.zeros(1, *config.sample_shape))
+    repeater = lambda x: jnp.repeat(x[None], config.num_temps - 1, axis=0)
+    transition_params = jax.tree_util.tree_map(repeater, flow_init_params)
+    return transition_params
+
+
 def evaluate_mog(forward_pass_function, n_runs=5):
     target = FABMoG(config, 2)
     key = jax.random.PRNGKey(0)
