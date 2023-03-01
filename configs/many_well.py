@@ -26,7 +26,6 @@ def get_config():
   config.batch_size = 2048
   config.estimation_batch_size = 2048
   config.sample_shape = (32,)
-  config.report_step = config.craft_num_iters // 6
   config.use_plotting = False
   config.vi_report_step = 100
   config.use_x64 = False
@@ -126,5 +125,6 @@ def get_config():
 
 
   config.craft_num_iters = int(1e10 / mcmc_config.hmc_num_leapfrog_steps / config.batch_size / (config.num_temps - 1))
+  config.report_step = config.craft_num_iters // 6
   print(f"training for {config.craft_num_iters} iterations")
   return config
