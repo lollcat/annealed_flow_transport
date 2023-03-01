@@ -52,7 +52,7 @@ def get_config():
   optimization_config = ConfigDict()
   optimization_config.free_energy_iters = 500
   optimization_config.aft_step_size = 1e-2
-  optimization_config.craft_step_size = 1e-4
+  optimization_config.craft_step_size = 3e-4
   optimization_config.vi_step_size = 1e-4
   config.optimization_config = optimization_config
 
