@@ -5,6 +5,9 @@ our paper [Flow Annealed Importance Sampling Bootstrap](https://arxiv.org/abs/22
 We show that our method (FAB) significantly outperforms CRAFT on the GMM problem - CRAFT fails to capture all the modes in the target distribution on this problem.
 On the Many Well problem both FAB and CRAFT perform well, where both methods capture the modes in the target distribution well.
 
+
+Install notes: make sure to use `chex==0.1.5`
+
 Colab notebook for running experiment for GMM problem:
 <a href="https://colab.research.google.com/github/lollcat/annealed_flow_transport/blob/master/craft_gmm.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
