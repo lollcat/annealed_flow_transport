@@ -363,12 +363,12 @@ class FABMoG(LogDensity):
     target_samples = self.distribution.sample(seed=jax.random.PRNGKey(1),
                                               sample_shape=(n_samples,))
     self.true_expectation_check = jnp.mean(self.quadratic_f(target_samples))
-    # print(f"loaded expectation: {self.true_expectation} \n"
-    #       f"calculated expectation: {self.true_expectation_check} \n")
 
 
-  def _check_constructor_inputs(self, unused_config: ConfigDict, num_dim: int):
-    self._check_expected_num_dim(num_dim, 2, type(self).__name__)
+  def  _check_constructor_inputs(self, config: ConfigDict,
+                                 sample_shape: SampleShape):
+    del config
+    assert sample_shape == (2,)
 
   def evaluate_log_density(self, x: Array) -> Array:
     return jax.vmap(self.distribution.log_prob)(x)
