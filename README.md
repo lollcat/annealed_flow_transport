@@ -10,6 +10,8 @@ Colab notebook for running experiment for GMM problem:
 
 [Notebook](craft_manywell_train_eval.ipynb) for running experiment for Many Well Problem
 
+### GMM plot (CRAFT fails):
 ![Gaussian Mixture Model samples vs contours](MoG.png)
 
+### Many Well plot (CRAFT performs well):
 ![CRAFT on the Many Well problem](many_well_craft.png)
