@@ -16,6 +16,8 @@
 import ml_collections
 ConfigDict = ml_collections.ConfigDict
 
+from annealed_flow_transport.many_well_plotting import plot
+
 
 def get_config():
   """Returns a many well experiment config as ConfigDict."""
@@ -27,6 +29,7 @@ def get_config():
   config.estimation_batch_size = 2048
   config.sample_shape = (32,)
   config.use_plotting = False
+  config.plot = plot
   config.vi_report_step = 100
   config.use_x64 = False
   config.num_layers = 1

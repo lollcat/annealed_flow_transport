@@ -17,6 +17,15 @@
 import ml_collections
 ConfigDict = ml_collections.ConfigDict
 
+from utils_fab import plot_contours_2D
+import matplotlib.pyplot as plt
+
+def plot_mog(samples, log_density):
+  fig, ax = plt.subplots()
+  plot_contours_2D(log_density, ax=ax, bound=60, levels=40)
+  ax.plot(samples[:, 0], samples[:, 1], "o")
+
+
 
 def get_config():
   """Returns a standard normal experiment config as ConfigDict."""
@@ -42,6 +51,10 @@ def get_config():
   config.save_checkpoint = True
   config.params_filename = "checkpoint"
   config.checkpoint_interval = 1000
+  config.use_path_gradient = False
+  config.use_plotting = True
+  config.n_samples_plotting = config.batch_size
+  config.plot = plot_mog
 
   optimization_config = ConfigDict()
   optimization_config.free_energy_iters = 1000

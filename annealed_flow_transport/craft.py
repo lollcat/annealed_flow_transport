@@ -25,7 +25,6 @@ import optax
 
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from annealed_flow_transport.many_well_plotting import plot
 from annealed_flow_transport.densities import effective_sample_size
 
 
@@ -325,19 +324,20 @@ def outer_loop_craft(opt_update: UpdateFn,
                           samples=final_samples,
                           log_weights=final_log_weights)
         if config.use_plotting:
-            plot(final_samples[:config.n_samples_plotting], density_by_step._final_log_density)
+            config.plot(final_samples[:config.n_samples_plotting], density_by_step._final_log_density)
             plt.show()
         info = f'Step {step}: Free energy {overall_free_energy} Log Normalizer estimate {log_normalizer_estimate}'
         logging.info(
             'Step %05d: Free energy %f Log Normalizer estimate %f',
             step, overall_free_energy, log_normalizer_estimate
         )
-        ess = effective_sample_size(final_log_weights, normalised=False)
-        print(f"effective sample size of {ess}")
+        # ess = effective_sample_size(final_log_weights, normalised=False)
+        # print(f"effective sample size of {ess}")
         print(info)
 
-  plot(final_samples[:config.n_samples_plotting], density_by_step._final_log_density)
-  plt.show()
+  if config.use_plotting:
+      config.plot(final_samples[:config.n_samples_plotting], density_by_step._final_log_density)
+      plt.show()
 
   finish_time = time.time()
   delta_time = finish_time - start_time
