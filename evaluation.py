@@ -27,7 +27,7 @@ def get_flow_init_params(config, key=jax.random.PRNGKey(0)):
 
 
 def evaluate_mog(forward_pass_function, n_runs=5):
-    target = FABMoG(config, 2)
+    target = FABMoG(config, (2, ))
     key = jax.random.PRNGKey(0)
 
     # collect
