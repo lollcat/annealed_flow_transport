@@ -1,4 +1,4 @@
-# Copyright 2020 DeepMind Technologies Limited.
+# Copyright 2023 DeepMind Technologies Limited.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,47 +12,50 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""An experiment setup for the Cox process posterior distribution."""
+"""An experiment setup for the many well example."""
 import ml_collections
 ConfigDict = ml_collections.ConfigDict
 
+from annealed_flow_transport.many_well_plotting import plot
+
 
 def get_config():
-  """Returns a standard normal experiment config as ConfigDict."""
+  """Returns a many well experiment config as ConfigDict."""
   config = ConfigDict()
+  config.n_samples_plotting = 200
 
   config.seed = 1
-  config.batch_size = 2000
-  config.estimation_batch_size = 2000
-  config.sample_shape = (32*32,)
-  config.report_step = 1
+  config.batch_size = 2048
+  config.estimation_batch_size = 2048
+  config.sample_shape = (32,)
+  config.use_plotting = False
+  config.plot = plot
   config.vi_report_step = 100
+  config.use_x64 = False
   config.num_layers = 1
-  config.step_logging = False
-  config.num_temps = 11
+  config.step_logging = True
+  config.num_temps = 5
   config.resample_threshold = 0.3
-  config.write_samples = True
+  config.write_samples = False
   config.stopping_criterion = 'time'
   config.use_resampling = True
   config.use_markov = True
-  config.use_path_gradient = False
   config.algo = 'craft'
-  config.craft_num_iters = 200
+  config.optim_markov = False
   config.snf_num_iters = 1000
-  config.craft_batch_size = 2000
+  config.fcraft_num_iters = 500
+  config.craft_batch_size = config.batch_size
   config.snf_batch_size = 2000
+  config.fcraft_batch_size = 2000
   config.vi_iters = 100000
   config.checkpoint_interval = 200000
   config.vi_estimator = 'importance'
+  config.use_path_gradient = False
 
   optimization_config = ConfigDict()
   optimization_config.free_energy_iters = 500
   optimization_config.aft_step_size = 1e-2
-  optimization_config.craft_step_size = 5e-2
-  optimization_config.craft_boundaries_and_scales = ({100: 1e-2},)
-  optimization_config.snf_step_size = 0.1
-  optimization_config.snf_boundaries_and_scales = ({70: 5e-2,
-                                                    100: 1e-2},)
+  optimization_config.craft_step_size = 3e-4
   optimization_config.vi_step_size = 1e-4
   config.optimization_config = optimization_config
 
@@ -63,14 +66,28 @@ def get_config():
   config.initial_config = initial_config
 
   final_config = ConfigDict()
-  final_config.density = 'LogGaussianCoxPines'
-  final_config.use_whitened = False
-  final_config.file_path = ''
+  final_config.density = 'ManyWell'
   config.final_config = final_config
 
+
   flow_config = ConfigDict()
-  flow_config.type = 'DiagonalAffine'
-  flow_config.sample_shape = config.sample_shape
+  flow_config.type = 'AffineInverseAutoregressiveFlow'
+  flow_config.intermediate_hids_per_dim = 16
+  flow_config.num_layers = 3  # total layers is this*(num_temps-1)
+  flow_config.identity_init = True
+  flow_config.bias_last = True
+  # flow_config.type = 'SplineInverseAutoregressiveFlow'
+  # flow_config.num_spline_bins = 10
+  # flow_config.lower_lim = -3.
+  # flow_config.intermediate_hids_per_dim = 30
+  # flow_config.num_layers = 3
+  # flow_config.identity_init = True
+  # flow_config.bias_last = True
+  # flow_config.upper_lim = 3.
+  # flow_config.min_bin_size = 1e-2
+  # flow_config.min_derivative = 1e-2
+  # flow_config.num_elem = config.sample_shape[0]
+  # flow_config.sample_shape = config.sample_shape
   config.flow_config = flow_config
   initial_sampler_config = ConfigDict()
   initial_sampler_config.initial_sampler = 'MultivariateNormalDistribution'
@@ -84,19 +101,32 @@ def get_config():
   nuts_step_config.step_times = [0., 0.25, 0.5, 1.]
   nuts_step_config.step_sizes = [0.7, 0.7, 0.5, 0.5]
 
+  rwm_step_config = ConfigDict()
+  rwm_step_config.step_times = [0., 0.25, 0.5, 1.]
+  rwm_step_config.step_sizes = [0.03, 0.03, 0.03, 0.03]
+
   mcmc_config.hmc_step_config = hmc_step_config
   mcmc_config.slice_step_config = hmc_step_config
   mcmc_config.nuts_step_config = nuts_step_config
+  mcmc_config.rwm_step_config = rwm_step_config
   mcmc_config.hmc_steps_per_iter = 1
   mcmc_config.use_jax_hmc = True
   mcmc_config.rwm_steps_per_iter = 0
-  mcmc_config.hmc_num_leapfrog_steps = 10
+  mcmc_config.hmc_num_leapfrog_steps = 5
 
   mcmc_config.slice_steps_per_iter = 0
   mcmc_config.nuts_steps_per_iter = 0
   mcmc_config.slice_max_doublings = 5
   mcmc_config.nuts_max_tree_depth = 4
+  mcmc_config.iters = 1
   config.mcmc_config = mcmc_config
   config.save_params = False
 
+  config.craft_num_iters = int(1e10 / mcmc_config.hmc_num_leapfrog_steps / config.batch_size / (config.num_temps - 1))
+  config.report_step = config.craft_num_iters // 6
+  print(f"training for {config.craft_num_iters} iterations")
+
+  config.save_checkpoint = True
+  config.params_filename = "checkpoint_craft_mw"
+  config.checkpoint_interval = config.report_step
   return config

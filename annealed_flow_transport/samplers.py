@@ -21,7 +21,8 @@ import jax
 import jax.numpy as jnp
 
 RandomKey = tp.RandomKey
-Array = jnp.ndarray
+Array = tp.Array
+
 
 
 class NormalDistribution(object):
@@ -44,8 +45,9 @@ class MultivariateNormalDistribution(object):
 
   def __init__(self, config):
     self._config = config
+    self.diagonal_cov = config.diagonal_cov if hasattr(config, 'diagonal_cov') else 1.
 
   def __call__(self, key: RandomKey, num_samples: int,
                sample_shape: Tuple[int]) -> Array:
     batched_sample_shape = (num_samples,) + sample_shape
-    return jax.random.normal(key, shape=batched_sample_shape) * jnp.sqrt(self._config.diagonal_cov)
+    return jax.random.normal(key, shape=batched_sample_shape) * jnp.sqrt(self.diagonal_cov)
